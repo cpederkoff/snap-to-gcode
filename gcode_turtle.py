@@ -1,4 +1,5 @@
 import math
+import sys
 
 
 class GcodeTurtle():
@@ -33,10 +34,18 @@ G1 F1800.000 E-1.00000
 G92 E0
 G1 Z0.350 F6000.000
 G1 X0.000 Y0.000 F6000.000
-G1 E1.00000 F720.000'''
+G1 E1.00000 F720.000\n'''
 
-    def __init__(self):
-        self.output = self.header.split("\n")
+    def __init__(self, filename=None):
+        #Borrowed from http://code.google.com/p/gcodegen
+        self.filename = filename
+        # set up the gcode file:
+        if not filename:
+          self.fd = sys.stdout
+        else:
+          self.fd = open(filename, "w")
+
+        self.fd.write(self.header)
 
         #if changing need to update self.header
         self.layer_height = .35
@@ -70,9 +79,9 @@ G1 E1.00000 F720.000'''
         self.y = y
         if self.is_pen_down:
             self.e += dist * self.extrusion_rate
-            self.output.append("G1 X%.3f Y%.3f E%.5f"%(self.x, self.y, self.e ))
+            self.fd.write("G1 X%.3f Y%.3f E%.5f\n"%(self.x, self.y, self.e ))
         else:
-            self.output.append("G1 X%.3f Y%.3f"%(self.x, self.y))
+            self.fd.write("G1 X%.3f Y%.3f\n"%(self.x, self.y))
 
     def up(self):
         upcode = \
@@ -80,10 +89,10 @@ G1 E1.00000 F720.000'''
 G92 E0
 G1 Z%.3f F6000.000
 ;G1 X54.278 Y54.137 F6000.000
-G1 E1.00000 F1800.000'''%(self.e - 1,self.z+self.layer_height)
+G1 E1.00000 F1800.000\n'''%(self.e - 1,self.z+self.layer_height)
 
         self.z += self.layer_height
-        self.output.extend(upcode.split("\n"))
+        self.fd.write(upcode)
 
     def forward(self,distance):
         new_x = self.x + distance*math.sin(math.radians(self.heading))
@@ -115,5 +124,3 @@ for i in range(180):
     t.up()
 
 
-for line in t.output:
-    print (line)
