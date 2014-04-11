@@ -32,7 +32,7 @@ M82 ; use absolute distances for extrusion
 G1 F1800.000 E-1.00000
 G92 E0
 G1 Z0.350 F6000.000
-G1 X49.500 Y49.350 F6000.000
+G1 X0.000 Y0.000 F6000.000
 G1 E1.00000 F720.000'''
 
     def __init__(self):
@@ -45,7 +45,7 @@ G1 E1.00000 F720.000'''
         self.z = self.layer_height
         #0 is north, 90 is east, 180 is south, and 270 is west
         self.heading = 0
-        
+        self.is_pen_down = True
         self.e = 1.000
         self.filament_width = 1.75
         self.extrusion_width = .7
@@ -66,10 +66,13 @@ G1 E1.00000 F720.000'''
 
     def setxy(self,x,y):
         dist = ((float(x)-self.x)**2 + (float(y)-self.y)**2)**.5
-        self.e = self.e + dist* self.extrusion_rate
         self.x = x
         self.y = y
-        self.output.append("G1 X%.3f Y%.3f E%.5f"%(self.x, self.y, self.e ))
+        if self.is_pen_down:
+            self.e += dist * self.extrusion_rate
+            self.output.append("G1 X%.3f Y%.3f E%.5f"%(self.x, self.y, self.e ))
+        else:
+            self.output.append("G1 X%.3f Y%.3f"%(self.x, self.y))
 
     def up(self):
         upcode = \
@@ -96,6 +99,13 @@ G1 E1.00000 F1800.000'''%(self.e - 1,self.z+self.layer_height)
 
     def back(self, distance):
         self.forward(-distance)
+
+    def pen_up(self):
+        self.is_pen_down = False
+
+    def pen_down(self):
+        self.is_pen_down = True
+
 
 t = GcodeTurtle()
 
