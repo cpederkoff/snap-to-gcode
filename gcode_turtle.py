@@ -1,3 +1,6 @@
+import math
+
+
 class GcodeTurtle():
     header = \
 '''; layer_height = 0.3
@@ -40,11 +43,14 @@ G1 E1.00000 F720.000'''
         self.x = 0.0
         self.y = 0.0
         self.z = self.layer_height
+        #0 is north, 90 is east, 180 is south, and 270 is west
+        self.heading = 0
+        
         self.e = 1.000
         self.filament_width = 1.75
         self.extrusion_width = .7
         #should be 0.092, turns out to be 0.1018621678
-        self.extrusion_rate = 0
+        self.extrusion_rate = .092
 
     def set_extrusion_rate(self, extrusion_width):
         self.extrusion_width = extrusion_width
@@ -60,7 +66,7 @@ G1 E1.00000 F720.000'''
 
     def setxy(self,x,y):
         dist = ((float(x)-self.x)**2 + (float(y)-self.y)**2)**.5
-        self.e = self.e + dist*self.extursion_rate
+        self.e = self.e + dist* self.extrusion_rate
         self.x = x
         self.y = y
         self.output.append("G1 X%.3f Y%.3f E%.5f"%(self.x, self.y, self.e ))
@@ -76,15 +82,28 @@ G1 E1.00000 F1800.000'''%(self.e - 1,self.z+self.layer_height)
         self.z += self.layer_height
         self.output.extend(upcode.split("\n"))
 
+    def forward(self,distance):
+        new_x = self.x + distance*math.sin(math.radians(self.heading))
+        new_y = self.y + distance*math.cos(math.radians(self.heading))
+        self.setxy(new_x, new_y)
+
+    def right(self, angle):
+        self.heading += angle
+        self.heading %= 360
+
+    def left(self, angle):
+        self.right(-angle)
+
+    def back(self, distance):
+        self.forward(-distance)
 
 t = GcodeTurtle()
-for i in range(20):
-    t.setxy(0,0)
-    t.setx(5)
-    t.sety(5)
-    t.setx(0)
-    t.sety(0)
+
+for i in range(180):
+    t.forward(1)
+    t.right(1)
     t.up()
+
 
 for line in t.output:
     print (line)
