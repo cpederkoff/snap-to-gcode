@@ -38,15 +38,14 @@ class GcodeTurtle():
         self.fd.write("G90 ; use absolute coordinates\n")
         self.fd.write("G92 E0\n")
         self.fd.write("M82 ; use absolute distances for extrusion\n")
-        self.fd.write("G1 F%f.3 E-1.00000\n"%self.gcode_speed)
-        self.fd.write("G92 E0\n")
-        self.fd.write("G1 Z%f.3 F%f.3\n"%(self.layer_height,self.gcode_speed))
-        self.z = self.layer_height
-        self.fd.write("G1 X0.000 Y0.000 F%f.3\n"%self.gcode_speed)
-        self.x = 0.0
-        self.y = 0.0
-        self.fd.write("G1 E1.00000 F720.000\n")
-        self.e = 1.000
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.e = 0.0
+        self.up()
+        self.pen_up()
+        self.setxy(0,0)
+        self.pen_down()
 
     def set_extrusion_rate(self, extrusion_width):
         self.extrusion_width = extrusion_width
@@ -71,15 +70,19 @@ class GcodeTurtle():
             self.fd.write("G1 X%.3f Y%.3f\n"%(self.x, self.y))
 
     def up(self):
-        upcode = \
-'''G1 F1800.000 E%.5f
-G92 E0
-G1 Z%.3f F6000.000
-;G1 X54.278 Y54.137 F6000.000
-G1 E1.00000 F1800.000\n'''%(self.e - 1,self.z+self.layer_height)
-
+        #Back the extruder up 1mm at 18mm/s
+        self.fd.write("G1 F1800.000 E%.5f\n"%(self.e - 1))
+        #Set the extruder counter to 0
+        self.fd.write("G92 E0\n")
+        self.e = 0
+        #Move up one layer height
+        self.fd.write("G1 Z%.3f F%.3f\n"%(self.z + self.layer_height,self.gcode_speed))
         self.z += self.layer_height
-        self.fd.write(upcode)
+        #Move the extruder forward 1mm at 18mm/s
+        self.fd.write("G1 E1.00000 F1800.000\n")
+        self.e = 1
+        #Set the default speed back to the gcode_speed
+        self.fd.write("G1 F%.3f\n"%self.gcode_speed)
 
     def forward(self,distance):
         new_x = self.x + distance*math.sin(math.radians(self.heading))
