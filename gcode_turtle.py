@@ -3,40 +3,7 @@ import sys
 
 
 class GcodeTurtle():
-    header = \
-'''; layer_height = 0.3
-; perimeters = 1
-; top_solid_layers = 3
-; bottom_solid_layers = 3
-; fill_density = .2
-; perimeter_speed = 40
-; infill_speed = 60
-; travel_speed = 100
-; nozzle_diameter = 0.4
-; filament_diameter = 1.75
-; extrusion_multiplier = 1
-; perimeters extrusion width = 0.40mm
-; infill extrusion width = 0.42mm
-; solid infill extrusion width = 0.42mm
-; top infill extrusion width = 0.42mm
-; first layer extrusion width = 0.70mm
-
-G21 ; set units to millimeters
-M107
-M190 S57 ; wait for bed temperature to be reached
-M104 S185 ; set temperature
-G28 ; home all axes
-M109 S185 ; wait for temperature to be reached
-G90 ; use absolute coordinates
-G92 E0
-M82 ; use absolute distances for extrusion
-G1 F1800.000 E-1.00000
-G92 E0
-G1 Z0.350 F6000.000
-G1 X0.000 Y0.000 F6000.000
-G1 E1.00000 F720.000\n'''
-
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, bed_temp=57, ext_temp=185, filament_diameter=1.75, extrusion_width=.7, layer_height=.35, speed=60):
         #Borrowed from http://code.google.com/p/gcodegen
         self.filename = filename
         # set up the gcode file:
@@ -44,22 +11,42 @@ G1 E1.00000 F720.000\n'''
           self.fd = sys.stdout
         else:
           self.fd = open(filename, "w")
+        self.layer_height = layer_height
 
-        self.fd.write(self.header)
-
-        #if changing need to update self.header
-        self.layer_height = .35
-        self.x = 0.0
-        self.y = 0.0
-        self.z = self.layer_height
         #0 is north, 90 is east, 180 is south, and 270 is west
         self.heading = 0
         self.is_pen_down = True
-        self.e = 1.000
-        self.filament_width = 1.75
-        self.extrusion_width = .7
+        self.filament_width = filament_diameter
+        self.extrusion_width = extrusion_width
         #should be 0.092, turns out to be 0.1018621678
         self.extrusion_rate = .092
+        #speed is given in mm/s but gcode uses mm/s * 100
+        self.gcode_speed = speed * 100
+
+        self.fd.write("; bed_temp = %d\n"%bed_temp)
+        self.fd.write("; extruder_temp = %d\n"%ext_temp)
+        self.fd.write("; filament_diameter = %f\n"%filament_diameter)
+        self.fd.write("; extrusion_width = %f\n"%extrusion_width)
+        self.fd.write("; layer_height = %f\n"%layer_height)
+        self.fd.write("; speed = %f\n"%speed)
+        self.fd.write("G21 ; set units to millimeters\n")
+        self.fd.write("M107\n")
+        self.fd.write("M190 S%d ; wait for bed temperature to be reached\n"%bed_temp)
+        self.fd.write("M104 S%d ; set temperature\n"%ext_temp)
+        self.fd.write("G28 ; home all axes\n")
+        self.fd.write("M109 S%d ; wait for temperature to be reached\n"%ext_temp)
+        self.fd.write("G90 ; use absolute coordinates\n")
+        self.fd.write("G92 E0\n")
+        self.fd.write("M82 ; use absolute distances for extrusion\n")
+        self.fd.write("G1 F%f.3 E-1.00000\n"%self.gcode_speed)
+        self.fd.write("G92 E0\n")
+        self.fd.write("G1 Z%f.3 F%f.3\n"%(self.layer_height,self.gcode_speed))
+        self.z = self.layer_height
+        self.fd.write("G1 X0.000 Y0.000 F%f.3\n"%self.gcode_speed)
+        self.x = 0.0
+        self.y = 0.0
+        self.fd.write("G1 E1.00000 F720.000\n")
+        self.e = 1.000
 
     def set_extrusion_rate(self, extrusion_width):
         self.extrusion_width = extrusion_width
