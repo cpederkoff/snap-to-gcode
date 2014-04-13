@@ -3,14 +3,9 @@ import sys
 
 
 class GcodeTurtle():
-    def __init__(self, filename=None, bed_temp=57, ext_temp=185, filament_diameter=1.75, extrusion_width=.7, layer_height=.35, speed=60):
-        #Borrowed from http://code.google.com/p/gcodegen
-        self.filename = filename
-        # set up the gcode file:
-        if not filename:
-          self.fd = sys.stdout
-        else:
-          self.fd = open(filename, "w")
+    def __init__(self, fd=sys.stdout, bed_temp=57, ext_temp=185, filament_diameter=1.75, extrusion_width=.7, layer_height=.35, speed=60, center_x=50, center_y=50):
+        #be sure this is something like sys.stdout or open(filename, "w")
+        self.fd = fd
         self.layer_height = layer_height
 
         #0 is north, 90 is east, 180 is south, and 270 is west
@@ -106,11 +101,13 @@ class GcodeTurtle():
         self.is_pen_down = True
 
 
-t = GcodeTurtle()
 
-for i in range(180):
-    t.forward(1)
-    t.right(1)
-    t.up()
+if __name__ == '__main__':
+    t = GcodeTurtle()
+
+    for i in range(180):
+        t.forward(1)
+        t.right(1)
+        t.up()
 
 
