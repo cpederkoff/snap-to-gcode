@@ -18,21 +18,21 @@ class GcodeTurtle():
         #speed is given in mm/s but gcode uses mm/s * 100
         self.gcode_speed = speed * 100
 
-        self.fd.write("; bed_temp = %d\n"%bed_temp)
-        self.fd.write("; extruder_temp = %d\n"%ext_temp)
-        self.fd.write("; filament_diameter = %f\n"%filament_diameter)
-        self.fd.write("; extrusion_width = %f\n"%extrusion_width)
-        self.fd.write("; layer_height = %f\n"%layer_height)
-        self.fd.write("; speed = %f\n"%speed)
-        self.fd.write("G21 ; set units to millimeters\n")
-        self.fd.write("M107\n")
-        self.fd.write("M190 S%d ; wait for bed temperature to be reached\n"%bed_temp)
-        self.fd.write("M104 S%d ; set temperature\n"%ext_temp)
-        self.fd.write("G28 ; home all axes\n")
-        self.fd.write("M109 S%d ; wait for temperature to be reached\n"%ext_temp)
-        self.fd.write("G90 ; use absolute coordinates\n")
-        self.fd.write("G92 E0\n")
-        self.fd.write("M82 ; use absolute distances for extrusion\n")
+        self.fd.write(u"; bed_temp = %d\n"%bed_temp)
+        self.fd.write(u"; extruder_temp = %d\n"%ext_temp)
+        self.fd.write(u"; filament_diameter = %f\n"%filament_diameter)
+        self.fd.write(u"; extrusion_width = %f\n"%extrusion_width)
+        self.fd.write(u"; layer_height = %f\n"%layer_height)
+        self.fd.write(u"; speed = %f\n"%speed)
+        self.fd.write(u"G21 ; set units to millimeters\n")
+        self.fd.write(u"M107\n")
+        self.fd.write(u"M190 S%d ; wait for bed temperature to be reached\n"%bed_temp)
+        self.fd.write(u"M104 S%d ; set temperature\n"%ext_temp)
+        self.fd.write(u"G28 ; home all axes\n")
+        self.fd.write(u"M109 S%d ; wait for temperature to be reached\n"%ext_temp)
+        self.fd.write(u"G90 ; use absolute coordinates\n")
+        self.fd.write(u"G92 E0\n")
+        self.fd.write(u"M82 ; use absolute distances for extrusion\n")
         self.x = 0
         self.y = 0
         self.z = 0
@@ -49,35 +49,51 @@ class GcodeTurtle():
         self.extrusion_rate = extrusion_cross_sectional_area/filament_cross_sectional_area
 
     def setx(self,x):
-        self.setxy(x,self.y)
+        self.setxyz(x, self.y, self.z)
 
     def sety(self,y):
-        self.setxy(self.x, y)
+        self.setxyz(self.x, y, self.z)
+
+    def setz(self, z):
+        self.setxyz(self.x, self.y, z)
 
     def setxy(self,x,y):
+        self.setxyz(x, y, self.z)
+
+    def setxyz(self, x, y, z):
         dist = ((float(x)-self.x)**2 + (float(y)-self.y)**2)**.5
-        self.x = x
-        self.y = y
+        gcode = u"G1 "
+        if self.x != x:
+            gcode += "X%.3f " % x
+            self.x = x
+        if self.y != y:
+            gcode += "Y%.3f " % y
+            self.y = y
+        if self.z != z:
+            gcode += "Z%.3f " % z
+            self.z = z
         if self.is_pen_down:
             self.e += dist * self.extrusion_rate
-            self.fd.write("G1 X%.3f Y%.3f E%.5f\n"%(self.x, self.y, self.e ))
-        else:
-            self.fd.write("G1 X%.3f Y%.3f\n"%(self.x, self.y))
+            gcode += "E%.5f"%self.e
+
+        self.fd.write(gcode)
+
+
 
     def up(self):
         #Back the extruder up 1mm at 18mm/s
-        self.fd.write("G1 F1800.000 E%.5f\n"%(self.e - 1))
+        self.fd.write(u"G1 F1800.000 E%.5f\n"%(self.e - 1))
         #Set the extruder counter to 0
-        self.fd.write("G92 E0\n")
+        self.fd.write(u"G92 E0\n")
         self.e = 0
         #Move up one layer height
-        self.fd.write("G1 Z%.3f F%.3f\n"%(self.z + self.layer_height,self.gcode_speed))
+        self.fd.write(u"G1 Z%.3f F%.3f\n"%(self.z + self.layer_height,self.gcode_speed))
         self.z += self.layer_height
         #Move the extruder forward 1mm at 18mm/s
-        self.fd.write("G1 E1.00000 F1800.000\n")
+        self.fd.write(u"G1 E1.00000 F1800.000\n")
         self.e = 1
         #Set the default speed back to the gcode_speed
-        self.fd.write("G1 F%.3f\n"%self.gcode_speed)
+        self.fd.write(u"G1 F%.3f\n"%self.gcode_speed)
 
     def forward(self,distance):
         new_x = self.x + distance*math.sin(math.radians(self.heading))
