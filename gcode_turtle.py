@@ -61,7 +61,7 @@ class GcodeTurtle():
         self.setxyz(x, y, self.z)
 
     def setxyz(self, x, y, z):
-        dist = ((float(x)-self.x)**2 + (float(y)-self.y)**2)**.5
+        dist = ((float(x)-self.x)**2 + (float(y)-self.y)**2 + (float(z)-self.z)**2)**.5
         gcode = u"G1 "
         if self.x != x:
             gcode += "X%.3f " % x
@@ -75,7 +75,7 @@ class GcodeTurtle():
         if self.is_pen_down:
             self.e += dist * self.extrusion_rate
             gcode += "E%.5f"%self.e
-
+        gcode+="\n"
         self.fd.write(gcode)
 
 
