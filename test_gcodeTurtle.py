@@ -174,15 +174,16 @@ G1 E1.00000 F1800.000
     def test_forward(self):
         output = StringIO()
         t = GcodeTurtle(fd=output)
+        t.set_heading(0)
         t.forward(100)
-        self.assertAlmostEqual(t.x,100)
-        self.assertAlmostEqual(t.y,0)
+        self.assertEqual(t.x,0)
+        self.assertEqual(t.y,100)
 
     def test_right(self):
         output = StringIO()
         t = GcodeTurtle(fd=output)
-        t.left(60)
+        t.set_heading(0)
+        t.right(30)
         t.forward(100)
         self.assertAlmostEqual(t.x, 50)
         self.assertAlmostEqual(t.y, 50*(3**.5))
-

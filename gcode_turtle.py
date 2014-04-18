@@ -122,7 +122,8 @@ class GcodeTurtle():
     def pen_down(self):
         self.is_pen_down = True
 
-
+    def set_heading(self, heading):
+        self.heading = heading
 
 if __name__ == '__main__':
     t = GcodeTurtle()
