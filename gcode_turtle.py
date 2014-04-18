@@ -51,8 +51,14 @@ class GcodeTurtle():
     def setx(self,x):
         self.setxyz(x, self.y, self.z)
 
+    def changex(self,amt):
+        self.setxyz(self.x + amt, self.y, self.z)
+
     def sety(self,y):
         self.setxyz(self.x, y, self.z)
+
+    def changey(self, amt):
+        self.setxyz(self.x, self.y + amt, self.z)
 
     def setz(self, z):
         self.setxyz(self.x, self.y, z)

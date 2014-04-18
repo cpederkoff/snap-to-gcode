@@ -31,6 +31,7 @@ G1 E1.00000 F1800.000
         slic3r_lines = filter(None, slic3r_lines)
 
         output_lines = output.getvalue().split("\n")
+        self.assertEqual(output.getvalue()[-1],"\n")
         output_lines = map(lambda line:line.split(";")[0],output_lines)
         output_lines = filter(None, output_lines) # fastest
         for slic3r_line, output_line in zip(slic3r_lines, output_lines):
@@ -48,13 +49,24 @@ G1 E1.00000 F1800.000
         output_line = output_line.replace(prelude, "")
         output_line_parts = output_line.split(" ")
         self.assertEqual(len(output_line_parts),5)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
         self.assertEqual(output_line_parts[0], "G1")
         self.assertEqual(output_line_parts[1], "X20.000")
         self.assertEqual(output_line_parts[2], "Y30.000")
         self.assertEqual(output_line_parts[3], "Z40.000")
         self.assertEqual(output_line_parts[4][0], "E")
 
-
+    def test_setxyz_measures_distance(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        prelude = output.getvalue()
+        t.setxyz(20,30, 40)
+        start_e = t.e
+        t.setxyz(30,40,50)
+        stop_e = t.e
+        distance = (stop_e - start_e)/t.extrusion_rate
+        self.assertAlmostEqual(distance, 17.320508076)
     def test_setxy(self):
         output = StringIO()
         t = GcodeTurtle(fd=output)
@@ -64,6 +76,8 @@ G1 E1.00000 F1800.000
         output_line = output_line.replace(prelude, "")
         output_line_parts = output_line.split(" ")
         self.assertEqual(len(output_line_parts),4)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
         self.assertEqual(output_line_parts[0], "G1")
         self.assertEqual(output_line_parts[1], "X20.000")
         self.assertEqual(output_line_parts[2], "Y30.000")
@@ -78,8 +92,26 @@ G1 E1.00000 F1800.000
         output_line = output_line.replace(prelude, "")
         output_line_parts = output_line.split(" ")
         self.assertEqual(len(output_line_parts),3)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
         self.assertEqual("G1",output_line_parts[0])
         self.assertEqual("X20.000",output_line_parts[1])
+        self.assertEqual("E",output_line_parts[2][0])
+
+    def test_changex(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        t.setx(10)
+        prelude = output.getvalue()
+        t.changex(20)
+        output_line = output.getvalue()
+        output_line = output_line.replace(prelude, "")
+        output_line_parts = output_line.split(" ")
+        self.assertEqual(len(output_line_parts),3)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
+        self.assertEqual("G1",output_line_parts[0])
+        self.assertEqual("X30.000",output_line_parts[1])
         self.assertEqual("E",output_line_parts[2][0])
 
     def test_sety(self):
@@ -91,8 +123,26 @@ G1 E1.00000 F1800.000
         output_line = output_line.replace(prelude, "")
         output_line_parts = output_line.split(" ")
         self.assertEqual(len(output_line_parts),3)
+        self.assertEqual(output_line.count("\n"), 1)
+        self.assertEqual(output_line[-1],"\n")
         self.assertEqual("G1",output_line_parts[0])
         self.assertEqual("Y20.000",output_line_parts[1])
+        self.assertEqual("E",output_line_parts[2][0])
+
+    def test_changey(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        t.sety(10)
+        prelude = output.getvalue()
+        t.changey(20)
+        output_line = output.getvalue()
+        output_line = output_line.replace(prelude, "")
+        output_line_parts = output_line.split(" ")
+        self.assertEqual(len(output_line_parts),3)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
+        self.assertEqual("G1",output_line_parts[0])
+        self.assertEqual("Y30.000",output_line_parts[1])
         self.assertEqual("E",output_line_parts[2][0])
 
     def test_setz(self):
@@ -104,6 +154,8 @@ G1 E1.00000 F1800.000
         output_line = output_line.replace(prelude, "")
         output_line_parts = output_line.split(" ")
         self.assertEqual(len(output_line_parts),3)
+        self.assertEqual(output_line[-1],"\n")
+        self.assertEqual(output_line.count("\n"), 1)
         self.assertEqual("G1",output_line_parts[0])
         self.assertEqual("Z20.000",output_line_parts[1])
         self.assertEqual("E",output_line_parts[2][0])
@@ -116,6 +168,7 @@ G1 E1.00000 F1800.000
         t.up()
         output_line = output.getvalue()
         output_line = output_line.replace(prelude, "")
+        self.assertEqual(output_line[-1],"\n")
         self.assertSequenceEqual(expected.split("\n"), output_line.split("\n"))
 
     def test_forward(self):
