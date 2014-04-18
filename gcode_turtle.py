@@ -18,21 +18,21 @@ class GcodeTurtle():
         #speed is given in mm/s but gcode uses mm/s * 100
         self.gcode_speed = speed * 100
 
-        self.fd.write(u"; bed_temp = %d\n"%bed_temp)
-        self.fd.write(u"; extruder_temp = %d\n"%ext_temp)
-        self.fd.write(u"; filament_diameter = %f\n"%filament_diameter)
-        self.fd.write(u"; extrusion_width = %f\n"%extrusion_width)
-        self.fd.write(u"; layer_height = %f\n"%layer_height)
-        self.fd.write(u"; speed = %f\n"%speed)
-        self.fd.write(u"G21 ; set units to millimeters\n")
-        self.fd.write(u"M107\n")
-        self.fd.write(u"M190 S%d ; wait for bed temperature to be reached\n"%bed_temp)
-        self.fd.write(u"M104 S%d ; set temperature\n"%ext_temp)
-        self.fd.write(u"G28 ; home all axes\n")
-        self.fd.write(u"M109 S%d ; wait for temperature to be reached\n"%ext_temp)
-        self.fd.write(u"G90 ; use absolute coordinates\n")
-        self.fd.write(u"G92 E0\n")
-        self.fd.write(u"M82 ; use absolute distances for extrusion\n")
+        # self.fd.write(u"; bed_temp = %d\r\n"%bed_temp)
+        # self.fd.write(u"; extruder_temp = %d\r\n"%ext_temp)
+        # self.fd.write(u"; filament_diameter = %f\r\n"%filament_diameter)
+        # self.fd.write(u"; extrusion_width = %f\r\n"%extrusion_width)
+        # self.fd.write(u"; layer_height = %f\r\n"%layer_height)
+        # self.fd.write(u"; speed = %f\r\n"%speed)
+        self.fd.write(u"G21\r\n")#set units to millimeters
+        self.fd.write(u"M107\r\n")
+        # self.fd.write(u";M190 S%d ; wait for bed temperature to be reached\r\n"%bed_temp)
+        # self.fd.write(u";M104 S%d ; set temperature\r\n"%ext_temp)
+        self.fd.write(u"G28\r\n")#home all axes
+        # self.fd.write(u";M109 S%d ; wait for temperature to be reached\r\n"%ext_temp)
+        self.fd.write(u"G90\r\n")#use absolute coordinates
+        self.fd.write(u"G92 E0\r\n")
+        self.fd.write(u"M82\r\n")#use absolute distances for extrusion
         self.x = 0
         self.y = 0
         self.z = 0
@@ -81,25 +81,25 @@ class GcodeTurtle():
         if self.is_pen_down:
             self.e += dist * self.extrusion_rate
             gcode += "E%.5f"%self.e
-        gcode+="\n"
+        gcode+="\r\n"
         self.fd.write(gcode)
 
 
 
     def up(self):
         #Back the extruder up 1mm at 18mm/s
-        self.fd.write(u"G1 F1800.000 E%.5f\n"%(self.e - 1))
+        self.fd.write(u"G1 F1800.000 E%.5f\r\n"%(self.e - 1))
         #Set the extruder counter to 0
-        self.fd.write(u"G92 E0\n")
+        self.fd.write(u"G92 E0\r\n")
         self.e = 0
         #Move up one layer height
-        self.fd.write(u"G1 Z%.3f F%.3f\n"%(self.z + self.layer_height,self.gcode_speed))
+        self.fd.write(u"G1 Z%.3f F%.3f\r\n"%(self.z + self.layer_height,self.gcode_speed))
         self.z += self.layer_height
         #Move the extruder forward 1mm at 18mm/s
-        self.fd.write(u"G1 E1.00000 F1800.000\n")
+        self.fd.write(u"G1 E1.00000 F1800.000\r\n")
         self.e = 1
         #Set the default speed back to the gcode_speed
-        self.fd.write(u"G1 F%.3f\n"%self.gcode_speed)
+        self.fd.write(u"G1 F%.3f\r\n"%self.gcode_speed)
 
     def forward(self,distance):
         new_x = self.x + distance*math.sin(math.radians(self.heading))

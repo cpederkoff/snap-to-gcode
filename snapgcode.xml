@@ -1,0 +1,94 @@
+<blocks app="Snap! 4.0, http://snap.berkeley.edu" version="1">
+    <block-definition s="go to x: %&apos;x&apos; y: %&apos;y&apos;"
+                      type="command" category="other">
+        <inputs>
+            <input type="%n">0</input>
+            <input type="%n">0</input>
+        </inputs>
+        <script>
+            <block s="gotoXY">
+                <block var="x"/>
+                <block var="y"/>
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/setxy</l>
+                            <block var="x"/>
+                            <l>a</l>
+                            <block var="y"/>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+    <block-definition s="go to z: %&apos;z&apos;"
+                      type="command" category="other">
+        <inputs>
+            <input type="%n">0</input>
+        </inputs>
+        <script>
+            <block s="gotoZ">
+                <block var="z"/>
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/setz</l>
+                            <block var="z"/>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+    <block-definition s="move %&apos;num&apos; steps"
+                      type="command" category="other">
+        <inputs>
+            <input type="%n">10</input>
+        </inputs>
+        <script>
+            <block s="forward">
+                <block var="num"/>
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/forward</l>
+                            <block var="num"/>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+
+    <block-definition s="turn clockwise %&apos;n&apos; degrees"
+                      type="command" category="other">
+        <inputs>
+            <input type="%n">15</input>
+        </inputs>
+        <script>
+            <block s="turn">
+                <block var="n"/>
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/turn</l>
+                            <block var="n"/>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+</blocks>
+
+
+
