@@ -9,7 +9,7 @@ class GcodeTurtle():
         self.layer_height = layer_height
 
         #0 is north, 90 is east, 180 is south, and 270 is west
-        self.heading = 0
+        self.heading = 90
         self.is_pen_down = True
         self.filament_width = filament_diameter
         self.extrusion_width = extrusion_width
