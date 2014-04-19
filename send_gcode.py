@@ -7,6 +7,12 @@ class send_gcode():
     def write(self,msg):
         print "writing:" + str(msg)
         self.ser.write(msg)
-        print "response:" + str(self.ser.readline())
+        response = self.ser.readline()
+        while response != 'ok\n':
+            print "recieved:" + str(response)
+            response = self.ser.readline()
+        print "recieved:" + str(response)
+
+
     def readline(self):
         return self.ser.readline()
