@@ -18,20 +18,20 @@ class GcodeTurtle():
         #speed is given in mm/s but gcode uses mm/s * 100
         self.gcode_speed = speed * 100
 
-        # self.fd.write(u"; bed_temp = %d\r\n"%bed_temp)
-        # self.fd.write(u"; extruder_temp = %d\r\n"%ext_temp)
-        # self.fd.write(u"; filament_diameter = %f\r\n"%filament_diameter)
-        # self.fd.write(u"; extrusion_width = %f\r\n"%extrusion_width)
-        # self.fd.write(u"; layer_height = %f\r\n"%layer_height)
-        # self.fd.write(u"; speed = %f\r\n"%speed)
+        print "bed_temp = %d\r\n"%bed_temp
+        print "extruder_temp = %d\r\n"%ext_temp
+        print"filament_diameter = %f\r\n"%filament_diameter
+        print"extrusion_width = %f\r\n"%extrusion_width
+        print"layer_height = %f\r\n"%layer_height
+        print"speed = %f\r\n"%speed
         self.fd.write(u"G21\r\n")#set units to millimeters
-        self.fd.write(u"M107\r\n")
-        # self.fd.write(u";M190 S%d ; wait for bed temperature to be reached\r\n"%bed_temp)
-        # self.fd.write(u";M104 S%d ; set temperature\r\n"%ext_temp)
+        self.fd.write(u"M107\r\n")#fan off
+        self.fd.write(u"M190 S%d \r\n"%bed_temp)#wait for bed temperature to be reached
+        self.fd.write(u"M104 S%d\r\n"%ext_temp)#set temperature
         self.fd.write(u"G28\r\n")#home all axes
-        # self.fd.write(u";M109 S%d ; wait for temperature to be reached\r\n"%ext_temp)
+        self.fd.write(u"M109 S%d\r\n"%ext_temp)#wait for extruder temperature to be reached
         self.fd.write(u"G90\r\n")#use absolute coordinates
-        self.fd.write(u"G92 E0\r\n")
+        self.fd.write(u"G92 E0\r\n")#set extruder counter to 0
         self.fd.write(u"M82\r\n")#use absolute distances for extrusion
         self.x = 0
         self.y = 0
