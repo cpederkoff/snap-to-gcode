@@ -88,6 +88,58 @@
             </block>
         </script>
     </block-definition>
+    <block-definition s="pen down"
+                      type="command" category="other">
+        <inputs>
+        </inputs>
+        <script>
+            <block s="down">
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/pendown</l>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+    <block-definition s="pen up"
+                      type="command" category="other">
+        <inputs>
+        </inputs>
+        <script>
+            <block s="up">
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/penup</l>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
+    <block-definition s="go up one layer"
+                      type="command" category="other">
+        <inputs>
+        </inputs>
+        <script>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/layerup</l>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
 </blocks>
 
 

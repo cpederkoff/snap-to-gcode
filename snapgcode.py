@@ -31,6 +31,12 @@ class CORSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             m = regex.match(path)
             angle = int(m.group(1))
             t.right(angle)
+        elif 'penup' in path:
+            t.pen_up()
+        elif 'pendown' in path:
+            t.pen_down()
+        elif 'layerup' in path:
+            t.up()
         elif path == '/snapgcode':
             f = open(ospath + '/snapgcode.xml', 'rb')
             ctype = self.guess_type(ospath + '/nxreturn')
@@ -65,7 +71,7 @@ if __name__ == "__main__":
         while line!= "" and line[-1] == '\n':
             line += ser.readline()
         print line
-        t = GcodeTurtle(fd=send_gcode(ser))
+        t = GcodeTurtle(fd=send_gcode(ser),bed_temp=20)
 
         httpd = SocketServer.TCPServer(("", PORT), Handler)
 
