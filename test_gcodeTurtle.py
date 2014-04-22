@@ -8,7 +8,7 @@ __author__ = 'christian'
 
 class TestGcodeTurtle(TestCase):
     from_slic3r = \
-        """G21 ; set units to millimeters
+        u"""G21 ; set units to millimeters
         M107
         M190 S57 ; wait for bed temperature to be reached
         M104 S185 ; set temperature
@@ -20,28 +20,22 @@ class TestGcodeTurtle(TestCase):
         G1 F1800.000 E-1.00000
         G92 E0
         G1 Z0.350 F6000.000
-        ;G1 X59.310 Y59.310 F6000.000
         G1 E1.00000 F1800.000
-        """
+        G1 F3000.000"""
 
     def test_init(self):
         output = StringIO()
         t = GcodeTurtle(fd=output)
         slic3r_lines = self.from_slic3r.split("\n")
         slic3r_lines = map(lambda line: line.split(";")[0], slic3r_lines)
-        slic3r_lines = filter(None, slic3r_lines)
 
-        output_lines = output.getvalue().split("\n")
+        output_lines = output.getvalue().split("\r\n")
         self.assertEqual(output.getvalue()[-1], "\n")
         output_lines = map(lambda line: line.split(";")[0], output_lines)
-        output_lines = filter(None, output_lines)  # fastest
-        for slic3r_line, output_line in zip(slic3r_lines, output_lines):
-            slic3r_line = slic3r_line.split(";")[0]
-            slic3r_line = slic3r_line.strip()
-            output_line = output_line.split(";")[0]
-            output_line = output_line.strip()
-            self.assertEqual(slic3r_line, output_line,
-                             "Expected line:\n %s\n did not match actual line:\n %s\n" % (slic3r_line, output_line))
+        output_lines = filter(lambda line: len(line) > 0, output_lines)  # fastest
+
+        slic3r_lines = map(lambda line: line.strip().split(";")[0], slic3r_lines)
+        self.assertSequenceEqual(slic3r_lines, output_lines)
 
     def test_setxyz(self):
         output = StringIO()
@@ -165,7 +159,7 @@ class TestGcodeTurtle(TestCase):
         self.assertEqual("E", output_line_parts[2][0])
 
     def test_up(self):
-        expected = "G1 F1800.000 E0.00000\nG92 E0\nG1 Z0.700 F6000.000\nG1 E1.00000 F1800.000\nG1 F6000.000\n"
+        expected = u"G1 F1800.000 E0.00000\r\nG92 E0\r\nG1 Z0.700 F6000.000\r\nG1 E1.00000 F1800.000\r\nG1 F3000.000\r\n"
         output = StringIO()
         t = GcodeTurtle(fd=output)
         prelude = output.getvalue()
@@ -191,3 +185,48 @@ class TestGcodeTurtle(TestCase):
         t.forward(100)
         self.assertAlmostEqual(t.x, 50)
         self.assertAlmostEqual(t.y, 50 * (3 ** .5))
+
+    def test_pen_up(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        prelude = output.getvalue()
+        t.pen_up()
+        output_line = output.getvalue().replace(prelude, "")
+        self.assertEqual(output_line, "G1 E-1.000 F6000.000\r\n")
+        prelude = output.getvalue()
+        t.forward(10)
+        output_line = output.getvalue().replace(prelude, "")
+        self.assertNotEqual(output_line.split(" ")[-1][0], "E")
+
+    def test_pen_up_does_not_retract_twice(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        prelude = output.getvalue()
+        t.pen_up()
+        t.pen_up()
+        output_line = output.getvalue().replace(prelude, "")
+        print output_line
+        self.assertEqual(output_line, "G1 E-1.000 F6000.000\r\n")
+
+    def test_pen_down(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        t.pen_up()
+        prelude = output.getvalue()
+        t.pen_down()
+        output_line = output.getvalue().replace(prelude, "")
+        self.assertEqual(output_line, "G1 E1.000 F3000.000\r\n")
+        prelude = output.getvalue()
+        t.forward(10)
+        output_line = output.getvalue().replace(prelude, "")
+        self.assertEqual(output_line.split(" ")[-1][0], "E")
+
+    def test_pen_down_does_not_retract_twice(self):
+        output = StringIO()
+        t = GcodeTurtle(fd=output)
+        t.pen_up()
+        prelude = output.getvalue()
+        t.pen_down()
+        t.pen_down()
+        output_line = output.getvalue().replace(prelude, "")
+        self.assertEqual(output_line, "G1 E1.000 F3000.000\r\n")
