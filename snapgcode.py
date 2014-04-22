@@ -58,9 +58,9 @@ if __name__ == "__main__":
     PORT = 1234
     Handler = CORSHTTPRequestHandler
     ser = serial.Serial(
-            port='/dev/ttyACM0',
-            baudrate=115200,
-            timeout=1,
+        port='/dev/ttyACM0',
+        baudrate=115200,
+        timeout=1,
     )
 
     ser.open()
@@ -68,10 +68,10 @@ if __name__ == "__main__":
         print "connected to 3d printer"
         print "3d printer says:"
         line = ser.readline()
-        while line!= "" and line[-1] == '\n':
+        while line != "" and line[-1] == '\n':
             line += ser.readline()
         print line
-        t = GcodeTurtle(fd=send_gcode(ser),bed_temp=20)
+        t = GcodeTurtle(fd=send_gcode(ser), bed_temp=20)
 
         httpd = SocketServer.TCPServer(("", PORT), Handler)
 
