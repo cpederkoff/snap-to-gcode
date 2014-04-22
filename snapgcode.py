@@ -1,4 +1,4 @@
-#SnapMotion by Technoboy10
+#SnapGcode by rcpedersen
 import SimpleHTTPServer
 import serial
 from gcode_turtle import GcodeTurtle
