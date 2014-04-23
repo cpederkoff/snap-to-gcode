@@ -67,11 +67,7 @@ if __name__ == "__main__":
     if ser.isOpen():
         print "connected to 3d printer"
         print "3d printer says:"
-        line = ser.readline()
-        while line != "" and line[-1] == '\n':
-            line += ser.readline()
-        print line
-        t = GcodeTurtle(fd=send_gcode(ser), bed_temp=20)
+        t = GcodeTurtle(fd=send_gcode(ser), ext_temp=185, bed_temp=20)
 
         httpd = SocketServer.TCPServer(("", PORT), Handler)
 
