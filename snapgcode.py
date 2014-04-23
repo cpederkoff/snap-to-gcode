@@ -37,6 +37,11 @@ class CORSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             t.pen_down()
         elif 'layerup' in path:
             t.up()
+        elif 'setheading' in path:
+            regex = re.compile("/setheading([0-9]+)")
+            m = regex.match(path)
+            heading = int(m.group(1))
+            t.set_heading(heading)
         elif path == '/snapgcode':
             f = open(ospath + '/snapgcode.xml', 'rb')
             ctype = self.guess_type(ospath + '/snapgcode.xml')

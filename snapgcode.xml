@@ -88,6 +88,27 @@
             </block>
         </script>
     </block-definition>
+    <block-definition s="set heading to %&apos;n&apos; degrees"
+                      type="command" category="other">
+        <inputs>
+            <input type="%n">0</input>
+        </inputs>
+        <script>
+            <block s="setHeading">
+                <block var="n"/>
+            </block>
+            <block s="doReport">
+                <block s="reportURL">
+                    <block s="reportJoinWords">
+                        <list>
+                            <l>localhost:1234/setheading</l>
+                            <block var="n"/>
+                        </list>
+                    </block>
+                </block>
+            </block>
+        </script>
+    </block-definition>
     <block-definition s="pen down"
                       type="command" category="other">
         <inputs>
