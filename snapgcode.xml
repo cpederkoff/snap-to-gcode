@@ -30,9 +30,6 @@
             <input type="%n">0</input>
         </inputs>
         <script>
-            <block s="gotoZ">
-                <block var="z"/>
-            </block>
             <block s="doReport">
                 <block s="reportURL">
                     <block s="reportJoinWords">
