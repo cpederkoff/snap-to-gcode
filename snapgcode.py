@@ -39,7 +39,7 @@ class CORSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             t.up()
         elif path == '/snapgcode':
             f = open(ospath + '/snapgcode.xml', 'rb')
-            ctype = self.guess_type(ospath + '/nxreturn')
+            ctype = self.guess_type(ospath + '/snapgcode.xml')
             self.send_response(200)
             self.send_header("Content-type", ctype)
             fs = os.fstat(f.fileno())
